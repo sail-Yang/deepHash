@@ -1,7 +1,6 @@
 import argparse
 import torch
 from utils.util import seed_setting
-
 def load_config():
   """
     Load configuration.
@@ -32,7 +31,7 @@ def load_config():
   if args.gpu is None:
     args.device = torch.device('cpu')
   else:
-    args.device = torch.devcie("cuda:%d" % args.gpu)
+    args.device = torch.device("cuda:%d" % args.gpu)
     torch.cuda.set_device(args.gpu)
   return args
 
