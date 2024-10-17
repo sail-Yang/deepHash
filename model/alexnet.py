@@ -27,6 +27,7 @@ class AlexNet(nn.Module):
 
     def forward(self, x):
         x = self.features(x)
+        # (batch_size,256,6,6)→(batch_size, 256 * 6 * 6)
         x = x.view(x.size(0), 256 * 6 * 6)
         x = self.hash_layer(x)
         return x
