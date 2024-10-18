@@ -14,6 +14,7 @@ def DSH_loss(y_hat, cls, m, alpha):
   y: similarity matrix [batch_size, batch_size]
   dist: hamming distance matrix [batch_size, batch_size]
   """
+  # 如果类别相同为0， 类别不同为1
   y = (cls @ cls.t() == 0).float()
   dist = (y_hat.unsqueeze(1) - y_hat.unsqueeze(0)).pow(2).sum(dim=2)
   loss = (1-y) /2 * dist + y/2 * (m-dist).clamp(min=0)
