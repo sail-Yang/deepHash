@@ -5,7 +5,7 @@ from loguru import logger
 from data.loadData import get_data
 from model.alexnet import AlexNet
 
-
+# epoch: 250; batch size: 64; lr: 1e-5; dataset: cifar10; bit: 48 Best mAP: 0.7786  
 def DSH_loss(y_hat, cls, m, alpha):
   """
   compute hashing loss
