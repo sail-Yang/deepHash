@@ -56,35 +56,6 @@ class DSH(nn.Module):
     
     return x
   
-def train(epoch, net, args, m,  train_loader, logger):
-  optimizer = torch.optim.RMSprop(net.parameters(), lr=args.lr, weight_decay=0.004)
-  accum_loss = 0
-  net.train()
-  for img, cls, i in train_loader:
-    img , cls = img.to(args.device), cls.to(args.device)
-    net.zero_grad()
-    y_hat = net(img)
-    loss = DSH_loss(y_hat, cls, m, args.alpha)
-    loss.backward()
-    optimizer.step()
-    accum_loss += loss.item()
-    if i % 10 == 0:
-      logger.info(f'[{epoch}][{i}/{len(train_loader)}] loss: {loss.item():.4f}')
-  train_loss = accum_loss / len(train_loader)
-  return train_loss
-
-def test(epoch, net, args, m, test_loader, logger):
-  accum_loss = 0
-  net.eval()
-  for i, (img, cls) in enumerate(test_loader):
-    img , cls = img.to(args.device), cls.to(args.device)
-    y_hat = net(img)
-    loss = DSH_loss(y_hat, cls, m, args.alpha)
-    accum_loss += loss.item()
-  logger.info(f'[{epoch}] val loss: {accum_loss:.4f}')
-  test_loss = accum_loss / len(test_loader)
-  return test_loss
-  
 
 if __name__ == '__main__':
   logger.add(os.path.join('log','DSH','{time}.log'), rotation='500 MB', level="INFO")
@@ -112,8 +83,6 @@ if __name__ == '__main__':
     train_loss = train_loss / len(train_loader)
     logger.info(f'[{epoch}] loss: {train_loss:.4f}')
     
-    # train_loss = train(epoch, net, args, 2*args.bit, train_loader, logger)
-    # test_loss = test(epoch, net, args, 2*args.bit, test_loader, logger)
     if epoch % args.checkpoint == 0:
       mAP = validate(args, test_loader, database_loader, net)
       if Best_mAP < mAP:
