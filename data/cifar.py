@@ -19,7 +19,7 @@ def load_data(args):
   Returns
     train_loader, test_loader, database_loader, train_index.shape[0], test_index.shape[0], database_index.shape[0]
   """
-  cifar_dataset_root = 'dataset/cifar/'
+  cifar_dataset_root = '/data2/fyang/dataset/cifar10/'
   transform = transforms.Compose([
       transforms.Resize(args.crop_size),
       transforms.ToTensor(),
