@@ -121,6 +121,7 @@ def load_config():
   parser.add_argument('--mu',type=float,default=1e-2)
   parser.add_argument('--nu',type=float,default=1)
   parser.add_argument('--eta',type=float,default=1e-2)
+  parser.add_argument('--gamma',type=float,default=200)
   
   # Data params
   parser.add_argument('-d','--dataset',type=str,default='cifar10',help='coco/nuswide/flick/imagenet/cifar10')
@@ -129,6 +130,7 @@ def load_config():
   parser.add_argument('--crop_size',type=int, default=224,help='transform the size of image')
   parser.add_argument('--n_class',type=int,default=10)
   parser.add_argument('--num_workers',type=int,default=4)
+  parser.add_argument('--iter',type=int,default="150",help="iteration times")
   
   # Flag params
   parser.add_argument('--seed',type=int, default=2021)
