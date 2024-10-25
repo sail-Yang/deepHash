@@ -32,7 +32,7 @@ if __name__ == '__main__':
     weight_decay=args.weight_decay
   )
 
-  
+  logger.info(f"[DPSH] model: AlexNet, bit: {args.bit}, lr: {args.lr}, gpu: {args.device}, batch_size: {args.batch_size}, epoch: {args.epoch}, alpha: {args.alpha} training...")
   for epoch in range(1,args.epoch+1):
     net.train()
     train_loss = 0  
