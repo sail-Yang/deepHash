@@ -4,6 +4,7 @@ from utils.util import *
 import torch.nn as nn
 from loguru import logger
 from model.alexnet import AlexNet
+from model.resnet import ResNet
 
 def DPSH_loss(y_hat, label, alpha):
   s = (label @ label.t() > 0).float()
@@ -24,8 +25,9 @@ if __name__ == '__main__':
   train_loader, test_loader, dataset_loader, num_train, num_test, num_dataset =  get_data(args)
   Best_mAP = 0
   # 构造模型
-  net = AlexNet(args.bit).to(args.device)
-  
+  # net = AlexNet(args.bit).to(args.device)
+  net = ResNet(bit=args.bit).to(args.device)
+    
   optimizer = torch.optim.RMSprop(
     net.parameters(),
     lr=args.lr,
