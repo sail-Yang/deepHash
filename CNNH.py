@@ -6,7 +6,7 @@ from itertools import product
 from loguru import logger
 from random import shuffle
 from tqdm import tqdm
-from data.cifar import load_data
+from data.loadData import get_data
 from model.alexnet import AlexNet
 
 class CNNHLoss(nn.Module):
@@ -59,7 +59,7 @@ class CNNHLoss(nn.Module):
 
 def train_val(args):
   # 获取数据
-  train_loader, test_loader, database_loader, num_train, _, num_dataset = load_data(args)
+  train_loader, test_loader, database_loader = get_data(args)
   net = AlexNet(args.bit).to(args.device)
   
   # 获取labels
@@ -71,7 +71,7 @@ def train_val(args):
   optimizer = torch.optim.Adam(net.parameters(), lr=args.lr)
   # 阶段1：分解S为H H^T
   logger.info("Stage 1: learning approximate hash codes.")
-  criterion = CNNHLoss(args, train_labels, num_train)
+  criterion = CNNHLoss(args, train_labels, args.num_train)
   
   #阶段2：训练网络
   logger.info("Stage 2: learning images feature representation and hash functions.")

@@ -22,7 +22,7 @@ if __name__ == '__main__':
   args = load_config()
   seed_setting(args.seed)
   # 获取数据
-  train_loader, test_loader, dataset_loader, num_train, num_test, num_dataset =  get_data(args)
+  train_loader, test_loader, dataset_loader =  get_data(args)
   Best_mAP = 0
   # 构造模型
   # net = AlexNet(args.bit).to(args.device)

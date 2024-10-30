@@ -52,17 +52,17 @@ if __name__ == '__main__':
   net = AlexNet(args.bit).to(args.device)
   optimizer = torch.optim.Adam(net.parameters(), lr=args.lr, weight_decay=args.weight_decay)
   
-  train_loader, test_loader, dataset_loader, num_train, num_test, num_dataset = get_data(args)
+  train_loader, test_loader, dataset_loader = get_data(args)
   Best_mAP = 0
   
   database_labels = get_database_labels(args.device, dataset_loader)
-  V = torch.zeros((num_dataset, args.bit)).to(args.device)
+  V = torch.zeros((args.num_database, args.bit)).to(args.device)
   
   for iter in range(args.iter):
     logger.info(f"[{iter+1}/{args.iter}] bit: {args.bit} dataset: {args.dataset} training ... ")
     net.train()
     # 从 num_dataset 个数据中随机选择 num_samples 个样本的索引，用作生成query dataset
-    selected_indexs = np.random.permutation(range(num_dataset))[0:num_samples]
+    selected_indexs = np.random.permutation(range(args.num_database))[0:num_samples]
     # 从databse生成query data 用作训练集
     if "cifar10" in args.dataset:
       train_loader.dataset.data = np.array(dataset_loader.dataset.data)[selected_indexs]
@@ -84,7 +84,7 @@ if __name__ == '__main__':
         u = net(img)
         u = u.tanh()
         U[ind, :] = u.data
-        loss = ADSH_loss(u=u, V=V, S=S, bit=args.bit, selected_indexs=selected_indexs, ind = ind, num_train=num_train)
+        loss = ADSH_loss(u=u, V=V, S=S, bit=args.bit, selected_indexs=selected_indexs, ind = ind, num_train=args.num_train)
         train_loss += loss.item()
         
         loss.backward()
@@ -94,7 +94,7 @@ if __name__ == '__main__':
     logger.info(f'[{epoch}] loss: {train_loss:.4f}') 
     
     # learn binary codes
-    barU = torch.zeros((num_dataset, args.bit)).to(args.device)
+    barU = torch.zeros((args.num_database, args.bit)).to(args.device)
     barU[selected_indexs, :] = U
     # calculate Q
     Q = -2 * args.bit * Sim @ U - 2 * args.gamma * barU

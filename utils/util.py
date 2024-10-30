@@ -129,6 +129,9 @@ def load_config():
   parser.add_argument('--resize_size',type=int, default=256,help='transform the size of image')
   parser.add_argument('--crop_size',type=int, default=224,help='transform the size of image')
   parser.add_argument('--n_class',type=int,default=10)
+  parser.add_argument('--num_train',type=int,default=5000)
+  parser.add_argument('--num_query',type=int,default=1000)
+  parser.add_argument('--num_database',type=int,default=54000)
   parser.add_argument('--num_workers',type=int,default=4)
   parser.add_argument('--iter',type=int,default="150",help="iteration times")
   

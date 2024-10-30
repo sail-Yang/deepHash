@@ -6,6 +6,7 @@ from data.loadData import get_data
 from model.alexnet import AlexNet
 
 
+# epoch: 250; batch size: 64; lr: 1e-5; dataset: cifar10; bit: 48 ; alpha: 1; beta: 1, Best mAP: 0.1882  
 class PCDHNet(nn.Module):
   def __init__(self, args,pretrained=True):
     super(PCDHNet, self).__init__()

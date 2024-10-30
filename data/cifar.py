@@ -9,19 +9,24 @@ from PIL import Image
 from torch.utils.data.dataloader import DataLoader
 import torchvision.datasets as dsets
 
-def load_data(args):
+def load_data(crop_size, num_train, num_query, num_workers, batch_size, n_class):
   """
   load cifar10 dataset
   
   Args
-    args: argumetns
+    crop_size: crop
+    num_train: number of training images
+    num_query: number of query images
+    num_workers: number of workers
+    batch_size: batch size
+    n_class: number of classes
   
   Returns
-    train_loader, test_loader, database_loader, train_index.shape[0], test_index.shape[0], database_index.shape[0]
+    train_loader, test_loader, database_loader
   """
   cifar_dataset_root = '/data2/fyang/dataset/cifar10/'
   transform = transforms.Compose([
-      transforms.Resize(args.crop_size),
+      transforms.Resize(crop_size),
       transforms.ToTensor(),
       transforms.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225])
   ])
@@ -33,10 +38,10 @@ def load_data(args):
   L = np.concatenate((np.array(train_dataset.targets), np.array(test_dataset.targets)))
   
   # 每个类别的训练集和测试集数量
-  train_size = 500
-  test_size = 100
-  # train_size = 5000
-  # test_size = 1000
+  # 5000 / 10, 1000 / 10
+  # 50000 / 10, 10000 / 10
+  per_train_size = (int)(num_train / n_class)
+  per_test_size = (int)(num_query / n_class)
   # 随机划分三个数据集
   first = True
   for label in range(10):
@@ -45,16 +50,16 @@ def load_data(args):
     perm = np.random.permutation(N)
     index = index[perm]
     if first:
-        test_index = index[:test_size]
-        train_index = index[test_size: train_size + test_size]
-        database_index = index[train_size + test_size:]
+        test_index = index[:per_test_size]
+        train_index = index[per_test_size: per_train_size + per_test_size]
+        database_index = index[per_train_size + per_test_size:]
     else:
-        test_index = np.concatenate((test_index, index[:test_size]))
-        train_index = np.concatenate((train_index, index[test_size: train_size + test_size]))
-        database_index = np.concatenate((database_index, index[train_size + test_size:]))
+        test_index = np.concatenate((test_index, index[:per_test_size]))
+        train_index = np.concatenate((train_index, index[per_test_size: per_train_size + per_test_size]))
+        database_index = np.concatenate((database_index, index[per_train_size + per_test_size:]))
     first = False
   
-  if train_size == 5000:
+  if per_train_size == 5000:
     database_index = train_index
   else:
     pass
@@ -69,11 +74,11 @@ def load_data(args):
   print("test_dataset", test_dataset.data.shape[0])
   print("database_dataset", database_dataset.data.shape[0])
   
-  train_loader = DataLoader(dataset=train_dataset,batch_size=args.batch_size,shuffle=True,num_workers=args.num_workers)
-  test_loader = DataLoader(dataset=test_dataset,batch_size=args.batch_size,shuffle=False,num_workers=args.num_workers)
-  database_loader = DataLoader(dataset=database_dataset,batch_size=args.batch_size,shuffle=False,num_workers=args.num_workers)
+  train_loader = DataLoader(dataset=train_dataset,batch_size=batch_size,shuffle=True,num_workers=num_workers)
+  test_loader = DataLoader(dataset=test_dataset,batch_size=batch_size,shuffle=False,num_workers=num_workers)
+  database_loader = DataLoader(dataset=database_dataset,batch_size=batch_size,shuffle=False,num_workers=num_workers)
   
-  return train_loader, test_loader, database_loader, train_index.shape[0], test_index.shape[0], database_index.shape[0]
+  return train_loader, test_loader, database_loader
 
 class CIFAR10(dsets.CIFAR10):
   """

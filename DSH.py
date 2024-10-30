@@ -65,7 +65,7 @@ if __name__ == '__main__':
   net = AlexNet(args.bit).to(args.device)
   optimizer = torch.optim.RMSprop(net.parameters(), lr=args.lr, weight_decay=args.weight_decay)
   
-  train_loader, test_loader, database_loader, num_train, num_test, num_database =  get_data(args)
+  train_loader, test_loader, database_loader =  get_data(args)
   Best_mAP = 0
   
   for epoch in range(1, args.epoch+1):
