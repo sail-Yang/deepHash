@@ -27,8 +27,9 @@ def compute_result(dataloader, net, device):
   with torch.no_grad():
     for img, cls, _ in tqdm(dataloader):
       clses.append(cls)
-      bs.append(net(img.to(device)).data.cpu())
-  return torch.sign(torch.cat(bs)), torch.cat(clses)
+      bs.append(net(img.to(device)).data)
+  return torch.sign(torch.cat(bs)).to(device), torch.cat(clses).to(device)
+
 
 def compute_mAP(train_binary, test_binary, train_label, test_label):
   """
@@ -48,35 +49,40 @@ def compute_mAP(train_binary, test_binary, train_label, test_label):
   return mAP
 
 def calculate_map(qu_B, re_B, qu_L, re_L):
-    """
-    :param qu_B: {-1,+1}^{mxq} query bits
-    :param re_B: {-1,+1}^{nxq} retrieval bits
-    :param qu_L: {0,1}^{mxl} query label
-    :param re_L: {0,1}^{nxl} retrieval label
-    :return:
-    """
-    num_query = qu_L.shape[0]
-    map = 0
-    for iter in range(num_query):
-        # gnd = (np.dot(qu_L[iter, :], re_L.transpose()) > 0).astype(np.float32)
-        gnd = (np.dot(qu_L[iter, :], re_L.transpose()) > 0)
-        tsum = np.sum(gnd)
-        if tsum == 0:
-            continue
-        hamm = calculate_hamming(qu_B[iter, :], re_B)
-        ind = np.argsort(hamm)
-        gnd = gnd[ind]
-
-        count = np.linspace(1, tsum, tsum) # [1,2, tsum]
-        tindex = np.asarray(np.where(gnd == 1)) + 1.0
-        map_ = np.mean(count / (tindex))
-        map = map + map_
-    map = map / num_query
-    return map
+  """
+  :param qu_B: {-1,+1}^{mxq} query bits
+  :param re_B: {-1,+1}^{nxq} retrieval bits
+  :param qu_L: {0,1}^{mxl} query label
+  :param re_L: {0,1}^{nxl} retrieval label
+  :return:
+  """
+  num_query = qu_L.shape[0]
+  map = 0
+  qu_B = qu_B.float()
+  re_B = re_B.float()
+  qu_L = qu_L.float()
+  re_L = re_L.float()
+  for iter in range(num_query):
+    gnd = (qu_L[iter].unsqueeze(0).mm(re_L.t()) > 0).type(torch.float).squeeze()
+    tsum = torch.sum(gnd)
+    if tsum == 0:
+        continue
+    hamm = calculate_hamming(qu_B[iter, :], re_B)
+    _, ind = torch.sort(hamm)
+    ind.squeeze_()
+    gnd = gnd[ind]
+    total = min(re_L.shape[0], int(tsum))
+    count = torch.arange(1, total + 1).type(torch.float).to(gnd.device)
+    tindex = torch.nonzero(gnd)[:total].squeeze().type(torch.float) + 1.0
+    map += torch.mean(count / tindex)
+  map = map / num_query
+  return map
 
 def calculate_hamming(B1,B2):
   q = B2.shape[1]
-  distH = 0.5 * (q - np.dot(B1, B2.transpose()))
+  if len(B1.shape) < 2:
+    B1 = B1.unsqueeze(0)
+  distH = 0.5 * (q - B1.mm(B2.t()))
   return distH
 
 def getLogName():
@@ -94,8 +100,9 @@ def getLogName():
 def validate(args, test_loader, dataset_loader, net):
   test_binary, test_label = compute_result(test_loader, net, args.device)
   ds_binary, ds_label = compute_result(dataset_loader, net, args.device)
-  mAP = calculate_map(test_binary.numpy(), ds_binary.numpy(), test_label.numpy(), ds_label.numpy())
+  mAP = calculate_map(test_binary.cuda(), ds_binary.cuda(), test_label.cuda(), ds_label.cuda())
   return mAP
+
 
 def load_config():
   """
@@ -110,6 +117,7 @@ def load_config():
   parser = argparse.ArgumentParser(description='DSH')
   
   ## Net basic params
+  parser.add_argument('--model', type=str, default="AlexNet",help="AlexNet/ResNet")
   parser.add_argument('--lr',type=float,default=1e-4)
   parser.add_argument('--epoch',type=int, default=250)
   parser.add_argument('--alpha',type=float,default=0.05)
@@ -117,14 +125,14 @@ def load_config():
   parser.add_argument('-m','--momentum',type=float,default=0.9)
   parser.add_argument('-b','--bit', type=int, default=48,help='Binary hash code length.(default: 48)')
   parser.add_argument('--batch_size',type=int, default=256)
-  parser.add_argument('--checkpoint', type=int, default=50, help='checkpointing after batches')
+  parser.add_argument('--checkpoint', type=int, default=10, help='checkpointing after batches')
   parser.add_argument('--mu',type=float,default=1e-2)
   parser.add_argument('--nu',type=float,default=1)
   parser.add_argument('--eta',type=float,default=1e-2)
   parser.add_argument('--gamma',type=float,default=200)
   
   # Data params
-  parser.add_argument('-d','--dataset',type=str,default='cifar10',help='coco/nuswide/flick/imagenet/cifar10')
+  parser.add_argument('-d','--dataset',type=str,default='cifar10',help='coco/nuswide_21/flick/imagenet/cifar10')
   parser.add_argument('-g','--gpu',type=int, default=0,help='Using gpu.(default: False)')
   parser.add_argument('--resize_size',type=int, default=256,help='transform the size of image')
   parser.add_argument('--crop_size',type=int, default=224,help='transform the size of image')
