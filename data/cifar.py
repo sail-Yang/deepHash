@@ -1,7 +1,3 @@
-import os
-import pickle
-import sys
-
 import numpy as np
 import torch
 from torchvision import transforms
@@ -9,7 +5,7 @@ from PIL import Image
 from torch.utils.data.dataloader import DataLoader
 import torchvision.datasets as dsets
 
-def load_data(crop_size, num_train, num_query, num_workers, batch_size, n_class):
+def load_cifar_data(crop_size, num_train, num_query, num_workers, batch_size, n_class):
   """
   load cifar10 dataset
   
