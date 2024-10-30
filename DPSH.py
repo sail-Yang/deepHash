@@ -3,8 +3,7 @@ from data.loadData import get_data
 from utils.util import *
 import torch.nn as nn
 from loguru import logger
-from model.alexnet import AlexNet
-from model.resnet import ResNet
+from model.load_model import load_model
 
 def DPSH_loss(y_hat, label, alpha):
   s = (label @ label.t() > 0).float()
@@ -25,8 +24,7 @@ if __name__ == '__main__':
   train_loader, test_loader, dataset_loader =  get_data(args)
   Best_mAP = 0
   # 构造模型
-  # net = AlexNet(args.bit).to(args.device)
-  net = ResNet(bit=args.bit).to(args.device)
+  net = load_model(args.model, args.bit, args.device)
     
   optimizer = torch.optim.RMSprop(
     net.parameters(),
@@ -34,7 +32,7 @@ if __name__ == '__main__':
     weight_decay=args.weight_decay
   )
 
-  logger.info(f"[DPSH] model: AlexNet, bit: {args.bit}, lr: {args.lr}, gpu: {args.device}, batch_size: {args.batch_size}, epoch: {args.epoch}, alpha: {args.alpha} training...")
+  logger.info(f"[DPSH] model: {args.model}, dataset: {args.dataset}, bit: {args.bit}, lr: {args.lr}, gpu: {args.device}, batch_size: {args.batch_size}, epoch: {args.epoch}, alpha: {args.alpha} training...")
   for epoch in range(1,args.epoch+1):
     net.train()
     train_loss = 0  
