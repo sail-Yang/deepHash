@@ -2,10 +2,11 @@ from .cifar import load_cifar_data
 from .nus_wide import load_nuswide_data
 def get_data(args):
   config_dataset(args)
+  root = "/data2/fyang/dataset/"
   if args.dataset == "cifar10":
-    return load_cifar_data(args.crop_size, args.num_train, args.num_query, args.num_workers, args.batch_size, args.n_class)
+    return load_cifar_data(root, args.crop_size, args.num_train, args.num_query, args.num_workers, args.batch_size, args.n_class)
   elif args.dataset == "nuswide_21" or args.dataset == "nuswide_21_m":
-    return load_nuswide_data(21, args.num_train, args.num_query, args.batch_size, args.num_workers)
+    return load_nuswide_data(root, 21, args.num_train, args.num_query, args.batch_size, args.num_workers)
   
   
   

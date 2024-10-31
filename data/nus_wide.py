@@ -10,11 +10,12 @@ import scipy.io as sio
 # 允许 PIL 加载被截断或不完整的图像文件
 ImageFile.LOAD_TRUNCATED_IMAGES = True
 
-def load_nuswide_data(tc, num_train, num_query, batch_size, num_workers):
+def load_nuswide_data(root, tc, num_train, num_query, batch_size, num_workers):
   """
   Loading nus-wide dataset
   
   Args:
+    root: dataset root
     tc(int): Top class
     num_query(int): Number of query images
     num_train(int): Number of training images
@@ -38,7 +39,7 @@ def load_nuswide_data(tc, num_train, num_query, batch_size, num_workers):
       transforms.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225])
   ])
   
-  root = "/data2/fyang/dataset/NUS-WIDE/"
+  root = os.path.join(root,"NUS-WIDE")
   if tc == 21:
     imgs_path = os.path.join(root, "nus-wide-tc21-IAll", "IAll.npy")
     labels_path = os.path.join(root,"nus-wide-tc21-lall.mat")
@@ -95,7 +96,6 @@ def load_nuswide_data(tc, num_train, num_query, batch_size, num_workers):
     query_dataloader = DataLoader(
       query_dataset,
       batch_size=batch_size,
-      pin_memory=True,
       num_workers=num_workers,
     )
     
@@ -103,14 +103,12 @@ def load_nuswide_data(tc, num_train, num_query, batch_size, num_workers):
       train_dataset,
       batch_size=batch_size,
       shuffle=True,
-      pin_memory=True,
       num_workers=num_workers,
     )
     
     retrieval_dataloader = DataLoader(
       retrieval_dataset,
       batch_size=batch_size,
-      pin_memory=True,
       num_workers=num_workers,
     )
     

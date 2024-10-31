@@ -1,15 +1,17 @@
 import numpy as np
 import torch
+import os
 from torchvision import transforms
 from PIL import Image
 from torch.utils.data.dataloader import DataLoader
 import torchvision.datasets as dsets
 
-def load_cifar_data(crop_size, num_train, num_query, num_workers, batch_size, n_class):
+def load_cifar_data(root, crop_size, num_train, num_query, num_workers, batch_size, n_class):
   """
   load cifar10 dataset
   
   Args
+    root: dataset root
     crop_size: crop
     num_train: number of training images
     num_query: number of query images
@@ -20,7 +22,7 @@ def load_cifar_data(crop_size, num_train, num_query, num_workers, batch_size, n_
   Returns
     train_loader, test_loader, database_loader
   """
-  cifar_dataset_root = '/data2/fyang/dataset/cifar10/'
+  cifar_dataset_root = os.path.join(root, 'cifar10')
   transform = transforms.Compose([
       transforms.Resize(crop_size),
       transforms.ToTensor(),
