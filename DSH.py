@@ -3,7 +3,7 @@ from utils.util import *
 import torch.nn as nn
 from loguru import logger
 from data.loadData import get_data
-from model.alexnet import AlexNet
+from model.load_model import load_model
 
 # epoch: 250; batch size: 64; lr: 1e-5; dataset: cifar10; bit: 48 Best mAP: 0.7786  
 def DSH_loss(y_hat, cls, m, alpha):
@@ -62,12 +62,12 @@ if __name__ == '__main__':
   args = load_config()
   seed_setting(args.seed)
   
-  net = AlexNet(args.bit).to(args.device)
+  net = load_model(args.model, args.bit, args.device)
   optimizer = torch.optim.RMSprop(net.parameters(), lr=args.lr, weight_decay=args.weight_decay)
   
   train_loader, test_loader, database_loader =  get_data(args)
   Best_mAP = 0
-  
+  logger.info(f"[DSH] model: {args.model}, dataset: {args.dataset}, bit: {args.bit}, lr: {args.lr}, gpu: {args.device}, batch_size: {args.batch_size}, epoch: {args.epoch}, alpha: {args.alpha} training...")
   for epoch in range(1, args.epoch+1):
     net.train()
     train_loss = 0

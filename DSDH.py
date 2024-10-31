@@ -98,7 +98,7 @@ if __name__ == "__main__":
   B = torch.randn(args.bit, N).sign().to(args.device)
   U = torch.zeros(args.bit, N).to(args.device)
   
-  
+  logger.info(f"[DSDH] model: {args.model}, dataset: {args.dataset}, bit: {args.bit}, lr: {args.lr}, gpu: {args.device}, batch_size: {args.batch_size}, epoch: {args.epoch}, alpha: {args.alpha} training...")
   
   for epoch in range(args.epoch):
     logger.info(f'[{epoch}] bit: {args.bit}, dataset: cifar10, training...')

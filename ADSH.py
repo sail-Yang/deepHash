@@ -58,6 +58,7 @@ if __name__ == '__main__':
   database_labels = get_database_labels(args.device, dataset_loader)
   V = torch.zeros((args.num_database, args.bit)).to(args.device)
   
+  logger.info(f"[ADSH] model: {args.model}, dataset: {args.dataset}, bit: {args.bit}, lr: {args.lr}, gpu: {args.device}, batch_size: {args.batch_size}, epoch: {args.epoch}, alpha: {args.alpha} training...")
   for iter in range(args.iter):
     logger.info(f"[{iter+1}/{args.iter}] bit: {args.bit} dataset: {args.dataset} training ... ")
     net.train()

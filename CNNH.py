@@ -69,6 +69,7 @@ def train_val(args):
   train_labels = torch.cat(clses).to(args.device).float()
   
   optimizer = torch.optim.Adam(net.parameters(), lr=args.lr)
+  logger.info(f"[CNNH] model: {args.model}, dataset: {args.dataset}, bit: {args.bit}, lr: {args.lr}, gpu: {args.device}, batch_size: {args.batch_size}, epoch: {args.epoch}, alpha: {args.alpha} training...")
   # 阶段1：分解S为H H^T
   logger.info("Stage 1: learning approximate hash codes.")
   criterion = CNNHLoss(args, train_labels, args.num_train)

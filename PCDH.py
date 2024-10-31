@@ -86,7 +86,7 @@ if __name__ == '__main__':
   
   train_loader, test_loader, database_loader, num_train, num_test, num_database =  get_data(args)
   Best_mAP = 0
-  
+  logger.info(f"[PCDH] model: {args.model}, dataset: {args.dataset}, bit: {args.bit}, lr: {args.lr}, gpu: {args.device}, batch_size: {args.batch_size}, epoch: {args.epoch}, alpha: {args.alpha} training...")
   for epoch in range(1, args.epoch+1):
     net.train()
     train_loss = 0
